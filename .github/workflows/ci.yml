@@ -19,7 +19,7 @@ jobs:
           virtualenvs-create: false
       - name: Install dependencies
         run: |
-          make install
+          poetry install
       - name: Style checking
         run: |
           make lint
@@ -39,7 +39,7 @@ jobs:
           virtualenvs-create: false
       - name: Install dependencies
         run: |
-          make install
+          poetry install
       - name: Build image
         run: |
           docker build -t tests -f docker/tests/Dockerfile .
