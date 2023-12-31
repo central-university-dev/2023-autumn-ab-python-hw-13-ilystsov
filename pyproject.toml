@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "2023-autumn-ab-python-hw-13-ilystsov"
+version = "0.1.0"
+description = ""
+authors = ["ilya <lystsov.ilya@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+jinja2 = "^3.1.2"
+gunicorn = "^21.2.0"
+psycopg2-binary = "^2.9.9"
+python-dotenv = "^1.0.0"
+bcrypt = "^4.1.2"
+pyjwt = "^2.8.0"
+typing-extensions = "^4.9.0"
+
+
+[tool.poetry.group.dev.dependencies]
+flake8-bandit = "^4.1.1"
+black = "^23.12.1"
+flake8 = "^6.1.0"
+webtest = "^3.0.0"
+pytest = "^7.4.3"
+pytest-cov = "^4.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

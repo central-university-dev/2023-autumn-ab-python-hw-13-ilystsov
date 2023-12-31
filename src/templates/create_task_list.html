@@ -1,0 +1,6 @@
+<form action="/task_list/create_task_list" method="post">
+    <label for="listName">Name of the Task List:</label>
+    <input type="text" id="listName" name="list_name">
+    <input type="submit" value="Create Task List">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+</form>
