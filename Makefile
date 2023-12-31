@@ -1,7 +1,10 @@
 CODE_FOLDERS := src
 TEST_FOLDERS := tests
 
-.PHONY: test format lint run
+.PHONY: test format lint run install
+
+install:
+	poetry install --no-root
 
 test:
 	poetry run pytest $(TEST_FOLDERS) --cov=$(CODE_FOLDERS) --cov-fail-under=95
