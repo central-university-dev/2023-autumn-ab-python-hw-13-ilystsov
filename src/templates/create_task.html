@@ -1,0 +1,6 @@
+<form action="/create_task" method="post">
+    <label for="taskName">Task Name:</label>
+    <input type="text" id="taskName" name="task_name">
+    <input type="submit" value="Create Task">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+</form>

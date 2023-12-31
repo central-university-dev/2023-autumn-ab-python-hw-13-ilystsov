@@ -1,0 +1,30 @@
+<html>
+    <body>
+        {% if is_admin %}
+            <h2>All Task Lists</h2>
+        {% else %}
+            <h2>Your Task Lists</h2>
+        {% endif %}
+        <ul>
+            {% for task_list in task_lists %}
+                <li>
+                    {% if is_admin %} User {{ task_list[1] }}: {% endif %}
+                    <a href='/task_lists/{{ task_list[0] }}'>{{ task_list[2] }}</a>
+                    {% if not is_admin %}
+                        <a href='/task_lists/{{ task_list[0] }}/edit'>Edit</a>
+                        <a href='/task_lists/{{ task_list[0] }}/delete'>Delete</a>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+
+        {% if not is_admin %}
+            <h2>Create New Task List</h2>
+            <form action="/task_lists" method="post">
+                <input type="text" name="list_name">
+                <input type="submit" value="Create New List">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            </form>
+        {% endif %}
+    </body>
+</html>

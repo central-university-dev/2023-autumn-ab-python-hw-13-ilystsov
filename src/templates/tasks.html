@@ -1,0 +1,25 @@
+<html>
+    <body>
+        <h1>Tasks in {{ list_name }}</h1>
+        <ul>
+            {% for task in tasks %}
+                <li>
+                    {{ task[0] }}
+                    {% if not is_admin %}
+                        <a href='/task_lists/{{ list_id }}/tasks/{{ task[1] }}/edit'>Edit</a>
+                        <a href='/task_lists/{{ list_id }}/tasks/{{ task[1] }}/delete'>Delete</a>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+        {% if not is_admin %}
+            <h2>Create New Task</h2>
+            <form action="/task_lists/{{ list_id }}" method="post">
+                <input type="text" name="task_name">
+                <input type="submit" value="Create New Task">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            </form>
+        {% endif %}
+
+    </body>
+</html>

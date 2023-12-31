@@ -1,0 +1,6 @@
+<form action="/task_lists/{{ list_id }}/edit" method="post">
+    <label for="listName">New Name of the Task List:</label>
+    <input type="text" id="listName" name="list_name" value="{{ list_name }}">
+    <input type="submit" value="Update">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+</form>
