@@ -1,5 +1,8 @@
 import uuid
+from datetime import datetime
 from os import environ, path
+from typing import Any
+
 from dotenv import load_dotenv
 from psycopg2 import pool
 
@@ -38,7 +41,9 @@ class ConnectionPool:
         return cls._connection_pool
 
 
-def execute(query, params=None, fetch=False):
+def execute(
+    query: str, params: tuple[Any, ...] | None = None, fetch: bool = False
+) -> list[tuple[Any, ...]] | None:
     result = None
     connection_pool = ConnectionPool.get_pool()
     conn = connection_pool.getconn()
@@ -72,7 +77,7 @@ class CreateTable:
             """
         execute(query)
 
-    def create_users_table(self):
+    def create_users_table(self) -> None:
         query = """
             CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
@@ -83,7 +88,7 @@ class CreateTable:
             """
         execute(query)
 
-    def create_sessions_table(self):
+    def create_sessions_table(self) -> None:
         query = """
            CREATE TABLE IF NOT EXISTS sessions (
            session_id TEXT PRIMARY KEY,
@@ -97,7 +102,9 @@ class CreateTable:
 
 
 class FetchData:
-    def fetch_task_lists(self, user_id, get_name=False, list_id=None):
+    def fetch_task_lists(
+        self, user_id: int, get_name: bool = False, list_id: int | None = None
+    ) -> list[tuple[Any, ...]] | None:
         if not get_name:
             params = (user_id,)
             query = (
@@ -112,38 +119,42 @@ class FetchData:
             return
         return execute(query, params, fetch=True)
 
-    def fetch_tasks(self, list_id):
+    def fetch_tasks(self, list_id: int) -> list[tuple[str, int]] | None:
         query = "SELECT name, id FROM tasks WHERE list_id = %s"
         return execute(query, (list_id,), fetch=True)
 
-    def fetch_user_by_username(self, username):
+    def fetch_user_by_username(
+        self, username: str
+    ) -> list[tuple[int, str, str, str]] | None:
         query = """
             SELECT id, username, password, role
             FROM users WHERE username = %s
             """
         return execute(query, (username,), fetch=True)
 
-    def fetch_session(self, session_id):
+    def fetch_session(
+        self, session_id: str
+    ) -> list[tuple[int, str, datetime]] | None:
         query = """
             SELECT user_id, csrf_token, created_at
             FROM sessions WHERE session_id = %s
             """
         return execute(query, (session_id,), fetch=True)
 
-    def fetch_list_owner_id(self, list_id):
+    def fetch_list_owner_id(self, list_id: int) -> list[tuple[int]] | None:
         query = "SELECT user_id FROM task_lists WHERE id = %s"
         return execute(query, (list_id,), fetch=True)
 
-    def fetch_all_task_lists(self):
+    def fetch_all_task_lists(self) -> list[tuple[int, int, str]] | None:
         query = "SELECT id, user_id, name FROM task_lists"
         return execute(query, fetch=True)
 
-    def fetch_user_role(self, user_id):
+    def fetch_user_role(self, user_id: int) -> str | None:
         query = "SELECT role FROM users WHERE id = %s"
         result = execute(query, (user_id,), fetch=True)
         return result[0][0] if result else None
 
-    def fetch_all_tasks(self):
+    def fetch_all_tasks(self) -> list[tuple[str, int, int]] | None:
         query = """
             SELECT tasks.name, task_lists.user_id, tasks.id
             FROM tasks JOIN task_lists ON tasks.list_id = task_lists.id
@@ -152,21 +163,21 @@ class FetchData:
 
 
 class InsertData:
-    def insert_task_lists(self, name, user_id):
+    def insert_task_lists(self, name: str, user_id: int) -> None:
         query = "INSERT INTO task_lists (name, user_id) VALUES (%s, %s)"
         execute(query, (name, user_id))
 
-    def insert_tasks(self, name, list_id):
+    def insert_tasks(self, name: str, list_id: int) -> None:
         query = "INSERT INTO tasks (name, list_id) VALUES (%s, %s)"
         execute(query, (name, list_id))
 
-    def insert_user(self, username, password, role):
+    def insert_user(self, username: str, password: str, role: str) -> None:
         query = (
             "INSERT INTO users (username, password, role) VALUES (%s, %s, %s)"
         )
         execute(query, (username, password, role))
 
-    def insert_session(self, user_id, csrf_token):
+    def insert_session(self, user_id: int, csrf_token: str) -> str:
         query = """
             INSERT INTO sessions (session_id, user_id, csrf_token)
             VALUES (%s, %s, %s)
@@ -176,12 +187,12 @@ class InsertData:
         return session_id
 
 
-class DeleteData:  # можно только одно id
-    def delete_task_list(self, list_id, user_id):
+class DeleteData:
+    def delete_task_list(self, list_id: int, user_id: int) -> None:
         query = "DELETE FROM task_lists WHERE id = %s AND user_id = %s"
         execute(query, (list_id, user_id))
 
-    def delete_task(self, task_id, user_id):
+    def delete_task(self, task_id: int, user_id: int) -> None:
         query = """
         DELETE FROM tasks WHERE id = %s AND list_id IN
         (SELECT id FROM task_lists WHERE user_id = %s)
@@ -190,13 +201,17 @@ class DeleteData:  # можно только одно id
 
 
 class UpdateData:
-    def update_task_list(self, list_id, user_id, new_name):
+    def update_task_list(
+        self, list_id: int, user_id: int, new_name: str
+    ) -> None:
         query = (
             "UPDATE task_lists SET name = %s WHERE id = %s AND user_id = %s"
         )
         execute(query, (new_name, list_id, user_id))
 
-    def update_task(self, task_id, list_id, user_id, new_name):
+    def update_task(
+        self, task_id: int, list_id: int, user_id: int, new_name: str
+    ) -> None:
         query = """
         UPDATE tasks SET name = %s WHERE id = %s AND list_id = %s
         AND list_id IN (SELECT id FROM task_lists WHERE user_id = %s)
